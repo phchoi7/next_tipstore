@@ -1,0 +1,16 @@
+{
+  "app/components/dashboard/MonthlyEarnings.tsx -> react-apexcharts": {
+    "id": 63865,
+    "files": [
+      "static/chunks/3975359d.8532c9ded96cf72e.js",
+      "static/chunks/300.135ef0ea3cfeca6e.js"
+    ]
+  },
+  "app/components/dashboard/YearlyBreakup.tsx -> react-apexcharts": {
+    "id": 63865,
+    "files": [
+      "static/chunks/3975359d.8532c9ded96cf72e.js",
+      "static/chunks/300.135ef0ea3cfeca6e.js"
+    ]
+  }
+}

@@ -1,0 +1,1 @@
+self.__NEXT_FONT_MANIFEST='{"pages":{"/match/[id]":["static/media/2b3f1035ed87a788-s.p.woff2"]},"app":{"/Users/christianchoi/tipstore_plaform/src/app/layout":["static/media/2b3f1035ed87a788-s.p.woff2"]},"appUsingSizeAdjust":true,"pagesUsingSizeAdjust":true}';

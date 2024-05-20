@@ -1,0 +1,11 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/authentication/register/page": "app/authentication/register/page.js",
+  "/icons/page": "app/icons/page.js",
+  "/authentication/login/page": "app/authentication/login/page.js",
+  "/utilities/shadow/page": "app/utilities/shadow/page.js",
+  "/utilities/typography/page": "app/utilities/typography/page.js",
+  "/page": "app/page.js",
+  "/sample-page/page": "app/sample-page/page.js"
+}
