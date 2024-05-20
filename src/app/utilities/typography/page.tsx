@@ -73,6 +73,7 @@ const EVCalculator = () => {
                   label="Home Win Odds"
                   variant="outlined"
                   fullWidth
+                  type="number"
                   value={homeOdds}
                   onChange={(e) => setHomeOdds(parseFloat(e.target.value))}
                   sx={{ mb: 3 }}
@@ -81,6 +82,7 @@ const EVCalculator = () => {
                   label="Assumed Home Probability"
                   variant="outlined"
                   fullWidth
+                  type="number"
                   value={assumedProbabilities.home}
                   onChange={(e) => setAssumedProbabilities({ ...assumedProbabilities, home: e.target.value })}
                   sx={{ mb: 3 }}
@@ -91,6 +93,7 @@ const EVCalculator = () => {
                   label="Draw Odds"
                   variant="outlined"
                   fullWidth
+                  type="number"
                   value={drawOdds}
                   onChange={(e) => setDrawOdds(parseFloat(e.target.value))}
                   sx={{ mb: 3 }}
@@ -99,6 +102,7 @@ const EVCalculator = () => {
                   label="Assumed Draw Probability"
                   variant="outlined"
                   fullWidth
+                  type="number"
                   value={assumedProbabilities.draw}
                   onChange={(e) => setAssumedProbabilities({ ...assumedProbabilities, draw: e.target.value })}
                   sx={{ mb: 3 }}
@@ -109,6 +113,7 @@ const EVCalculator = () => {
                   label="Away Win Odds"
                   variant="outlined"
                   fullWidth
+                  type="number"
                   value={awayOdds}
                   onChange={(e) => setAwayOdds(parseFloat(e.target.value))}
                   sx={{ mb: 3 }}
@@ -117,6 +122,7 @@ const EVCalculator = () => {
                   label="Assumed Away Probability"
                   variant="outlined"
                   fullWidth
+                  type="number"
                   value={assumedProbabilities.away}
                   onChange={(e) => setAssumedProbabilities({ ...assumedProbabilities, away: e.target.value })}
                   sx={{ mb: 3 }}

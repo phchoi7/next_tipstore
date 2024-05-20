@@ -1,7 +1,7 @@
-export default async function handler(
-  req: any,
-  res: { status: (arg0: number) => { (): any; new (): any; json: { (arg0: { error: string }): void; new (): any } } }
-) {
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { s2t } from 'chinese-s2t';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const ProxyServer = 'https://cors.bridged.cc/';
   const API_URL = `${ProxyServer}https://www.zucaijia.com/zcj/jincai/getAllMatchList`;
 
@@ -16,10 +16,13 @@ export default async function handler(
       },
     });
 
-    console.log(response);
     const data = await response.json();
-    console.log(data);
-    res.status(200).json(data);
+
+    const translatedData = JSON.parse(JSON.stringify(data), (key, value) =>
+      typeof value === 'string' ? s2t(value) : value
+    );
+
+    res.status(200).json(translatedData);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch match list' });
   }

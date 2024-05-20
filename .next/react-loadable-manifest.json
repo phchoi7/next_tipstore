@@ -1,16 +1,14 @@
 {
   "app/components/dashboard/MonthlyEarnings.tsx -> react-apexcharts": {
-    "id": 63865,
+    "id": "app/components/dashboard/MonthlyEarnings.tsx -> react-apexcharts",
     "files": [
-      "static/chunks/3975359d.8532c9ded96cf72e.js",
-      "static/chunks/300.135ef0ea3cfeca6e.js"
+      "static/chunks/_app-pages-browser_node_modules_react-apexcharts_dist_react-apexcharts_min_js.js"
     ]
   },
   "app/components/dashboard/YearlyBreakup.tsx -> react-apexcharts": {
-    "id": 63865,
+    "id": "app/components/dashboard/YearlyBreakup.tsx -> react-apexcharts",
     "files": [
-      "static/chunks/3975359d.8532c9ded96cf72e.js",
-      "static/chunks/300.135ef0ea3cfeca6e.js"
+      "static/chunks/_app-pages-browser_node_modules_react-apexcharts_dist_react-apexcharts_min_js.js"
     ]
   }
 }

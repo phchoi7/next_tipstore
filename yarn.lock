@@ -1308,6 +1308,11 @@ chalk@^4.0.0:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
 
+chinese-s2t@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/chinese-s2t/-/chinese-s2t-1.0.0.tgz#d3bf5c7990d68fe33ca26e0cfca0d2358554dde8"
+  integrity sha512-7OozF1W+rFJpGldX5Xl2c0XuZg7NKYK5tUe0g9UQEJ6WZg6kJpBwEGgOyCVRMf6HOQ5UDdudIYFRcqeQadAxSA==
+
 client-only@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/client-only/-/client-only-0.0.1.tgz#38bba5d403c41ab150bff64a95c85013cf73bca1"
