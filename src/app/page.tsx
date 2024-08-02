@@ -1,5 +1,6 @@
 'use client';
-import { Grid, Box } from '@mui/material';
+import { Grid, Box, CircularProgress, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
 
 // components
 import SalesOverview from '@/app/components/dashboard/SalesOverview';
@@ -9,7 +10,6 @@ import ProductPerformance from '@/app/components/dashboard/ProductPerformance';
 import Blog from '@/app/components/dashboard/Blog';
 import MonthlyEarnings from './components/dashboard/MonthlyEarnings';
 import PageContainer from './components/container/PageContainer';
-import { useEffect, useState } from 'react';
 import { Match } from '@/constants/interface';
 
 interface allMatchResponse {
@@ -19,8 +19,10 @@ interface allMatchResponse {
   titleText: string;
   total: number;
 }
+
 const Dashboard = () => {
   const [matchList, setMatchList] = useState<Match[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -31,6 +33,8 @@ const Dashboard = () => {
         setMatchList(data.rows);
       } catch (error) {
         console.error('Error fetching match list:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -39,7 +43,14 @@ const Dashboard = () => {
 
   return (
     <PageContainer title="Dashboard" description="this is Dashboard">
-      <Box>
+      {loading ? (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+          <CircularProgress />
+          <Typography variant="h6" marginLeft={2}>
+            Loading...
+          </Typography>
+        </Box>
+      ) : (
         <Grid container spacing={3}>
           {/* <Grid item xs={12} lg={8}>
             <SalesOverview />
@@ -64,7 +75,7 @@ const Dashboard = () => {
             <Blog />
           </Grid> */}
         </Grid>
-      </Box>
+      )}
     </PageContainer>
   );
 };
