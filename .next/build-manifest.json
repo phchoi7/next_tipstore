@@ -24,12 +24,6 @@
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
-    ],
-    "/match/[id]": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/css/pages/match/[id].css",
-      "static/chunks/pages/match/[id].js"
     ]
   },
   "ampFirstPages": []

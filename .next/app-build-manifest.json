@@ -16,10 +16,15 @@
       "static/chunks/main-app.js",
       "static/chunks/app/loading.js"
     ],
-    "/_not-found/page": [
+    "/utilities/typography/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
+      "static/chunks/app/utilities/typography/page.js"
+    ],
+    "/utilities/shadow/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/utilities/shadow/page.js"
     ]
   }
 }
