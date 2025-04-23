@@ -2,9 +2,6 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/api/getAllMatchList": "pages/api/getAllMatchList.js",
   "/match/[id]": "pages/match/[id].js",
-  "/api/getHistoryDetail": "pages/api/getHistoryDetail.js",
-  "/api/getBothTeamMatchDetail": "pages/api/getBothTeamMatchDetail.js",
-  "/api/getMatchCharts": "pages/api/getMatchCharts.js"
+  "/api/getAllMatchList": "pages/api/getAllMatchList.js"
 }
