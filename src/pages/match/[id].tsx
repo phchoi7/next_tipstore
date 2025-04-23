@@ -1,99 +1,310 @@
 'use client';
-import { useEffect, useState } from 'react';
+
+import React, { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import {
   Box,
-  Chip,
-  Grid,
   Typography,
-  Link,
-  List,
-  ListItem,
-  ListItemText,
-  ImageList,
-  ImageListItem,
-  FormGroup,
-  FormControlLabel,
-  Checkbox,
+  Grid,
+  Card,
+  CardContent,
+  CircularProgress,
+  Button,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  TableContainer,
+  Paper,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Tab,
 } from '@mui/material';
-import PageContainer from '@/app/components/container/PageContainer';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { TabContext, TabList, TabPanel } from '@mui/lab';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+
 import RootLayout from '@/app/layout';
-import Loading from '@/app/loading';
-import DashboardCard from '@/app/components/shared/DashboardCard';
-import ProductDetailSection from '@/app/components/product/ProductDetailSection';
+import PageContainer from '@/app/components/container/PageContainer';
 
-import dynamic from 'next/dynamic';
-import { StarRounded } from '@mui/icons-material';
+interface StatItem {
+  type: string;
+  matchCount: string;
+  victCount: string;
+  tieCount: string;
+  failCount: string;
+  obtainCount: string;
+  loseCount: string;
+  scoreCount?: string;
+  victRate?: string;
+}
+interface Detail {
+  peilvRow: Record<string, any>;
+  duList: { teamName: string; teamResult: string }[];
+  tecStacLeftList: { type: string; homeCount: string; custCount: string }[];
+  zhanjiRow: Record<string, any>;
+}
+interface BilvItem {
+  title: string;
+  desc: string;
+}
+interface ChartInfo {
+  bilvList: BilvItem[];
+  analyInfo: { keyNote: string; winPossibility: string; drawPossibility: string; losePossibility: string };
+}
+interface HistoryItem {
+  matchDate: string;
+  matehType: string;
+  homeTeam: string;
+  visitTeam: string;
+  result1: string;
+}
+interface HistoryDetail {
+  hisList: HistoryItem[];
+  homeStacList: StatItem[];
+  custStacList: StatItem[];
+}
 
-import Image from 'next/image';
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
 
-type WeekDays = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
-type BookingKeys = `available_booking_${WeekDays}`;
-
-const MatchDetail = () => {
+const MatchDetail: React.FC = () => {
   const router = useRouter();
-  const { id } = router.query;
+  const { id } = router.query as { id?: string };
 
-  //   useEffect(() => {
-  //     const handleResize = () => {
-  //       if (typeof window !== 'undefined') {
-  //         setWidth(window.innerWidth);
-  //       }
-  //     };
+  const [detail, setDetail] = useState<Detail | null>(null);
+  const [chartData, setChartData] = useState<ChartInfo | null>(null);
+  const [history, setHistory] = useState<HistoryDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState<'overview' | 'tech' | 'prob' | 'history' | 'form'>('overview');
 
-  //     window.addEventListener('resize', handleResize);
-  //     return () => window.removeEventListener('resize', handleResize);
-  //   }, []);
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    Promise.all([
+      fetch(`/api/getBothTeamMatchDetail?rowNo=${id}`),
+      fetch(`/api/getMatchCharts?rowNo=${id}`),
+      fetch(`/api/getHistoryDetail?rowNo=${id}`),
+    ])
+      .then(async ([r1, r2, r3]) => {
+        const [d1, d2, d3] = await Promise.all([r1.json(), r2.json(), r3.json()]);
+        setDetail(d1);
+        setChartData(d2);
+        setHistory(d3);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [id]);
 
-  //   useEffect(() => {
-  //     if (typeof window !== 'undefined' && id) {
-  //       const fetchData = async () => {
-  //         const response = await fetch(`/api/product/${id}`);
-  //         const data: SalesItem = await response.json();
-  //         setProduct(data);
-  //       };
-  //       fetchData();
-  //     }
-  //   }, [id]);
-
-  const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-
-  const renderStars = (rating: number) => {
-    const totalStars = Math.round(rating);
-    return Array.from({ length: totalStars }, (_, index) => (
-      <StarRounded key={index} style={{ color: '#FFD700', marginRight: 4 }} />
-    ));
-  };
-
-  //   if (!product) {
-  //     return (
-  //       <RootLayout>
-  //         <Loading />
-  //       </RootLayout>
-  //     );
-  //   }
-
-  function isBookingKey(key: any): key is BookingKeys {
-    return [
-      'available_booking_mon',
-      'available_booking_tue',
-      'available_booking_wed',
-      'available_booking_thu',
-      'available_booking_fri',
-      'available_booking_sat',
-      'available_booking_sun',
-    ].includes(key);
+  if (loading || !detail || !chartData || !history) {
+    return (
+      <RootLayout>
+        <PageContainer title={`Match Details${id ? `: #${id}` : ''}`} description="">
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}>
+            <CircularProgress />
+          </Box>
+        </PageContainer>
+      </RootLayout>
+    );
   }
+
+  const { peilvRow, duList, tecStacLeftList, zhanjiRow } = detail;
+  const { bilvList, analyInfo } = chartData;
+  const { hisList, homeStacList, custStacList } = history;
 
   return (
     <RootLayout>
-      <PageContainer title="Product Dashboard" description="This is the Product Dashboard">
-        <DashboardCard title={`產品詳情 - 編號：`}></DashboardCard>
+      <PageContainer title={`Match Details: #${id}`} description="All match data">
+        {/* Back Button */}
+        <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+          <Button startIcon={<ArrowBackIcon />} onClick={() => router.back()}>
+            Back
+          </Button>
+          <Typography variant="h5" sx={{ ml: 2 }}>
+            Match #{id}
+          </Typography>
+        </Box>
+
+        <TabContext value={tab}>
+          <TabList onChange={(_, v) => setTab(v)} aria-label="match detail tabs">
+            <Tab label="Overview" value="overview" />
+            <Tab label="Tech Stats" value="tech" />
+            <Tab label="Probabilities" value="prob" />
+            <Tab label="History" value="history" />
+            <Tab label="Standings" value="form" />
+          </TabList>
+
+          <TabPanel value="overview">
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      Overall Record
+                    </Typography>
+                    {Object.entries(peilvRow).map(([k, v]) => (
+                      <Typography key={k}>
+                        <strong>{k}:</strong> {v ?? 'N/A'}
+                      </Typography>
+                    ))}
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      Summary Record
+                    </Typography>
+                    {Object.entries(zhanjiRow).map(([k, v]) => (
+                      <Typography key={k}>
+                        <strong>{k}:</strong> {v ?? 'N/A'}
+                      </Typography>
+                    ))}
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={12}>
+                <Box mt={2}>
+                  <Typography variant="h6">Match Types</Typography>
+                  {duList.map((d, i) => (
+                    <Typography key={i}>
+                      {d.teamName} — Result: {d.teamResult || 'N/A'}
+                    </Typography>
+                  ))}
+                </Box>
+              </Grid>
+            </Grid>
+          </TabPanel>
+
+          <TabPanel value="tech">
+            <Grid container spacing={2}>
+              {tecStacLeftList.map((s) => (
+                <Grid item xs={12} sm={6} md={4} key={s.type}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="subtitle1">{s.type}</Typography>
+                      <Typography>Home: {s.homeCount}</Typography>
+                      <Typography>Away: {s.custCount}</Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </TabPanel>
+
+          <TabPanel value="prob">
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6} sx={{ height: 300 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={bilvList.map((b) => ({ name: b.title, value: parseFloat(b.desc) }))}
+                      dataKey="value"
+                      nameKey="name"
+                      outerRadius="80%"
+                    >
+                      {bilvList.map((_, idx) => (
+                        <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      Bookmaker Note
+                    </Typography>
+                    <div dangerouslySetInnerHTML={{ __html: analyInfo.keyNote }} />
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </TabPanel>
+
+          <TabPanel value="history">
+            <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
+              <Table stickyHeader size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Date</TableCell>
+                    <TableCell>Type</TableCell>
+                    <TableCell>Home</TableCell>
+                    <TableCell>Away</TableCell>
+                    <TableCell>Result</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {hisList.map((m) => (
+                    <TableRow key={m.matchDate + m.matehType}>
+                      <TableCell>{m.matchDate}</TableCell>
+                      <TableCell>{m.matehType}</TableCell>
+                      <TableCell dangerouslySetInnerHTML={{ __html: m.homeTeam }} />
+                      <TableCell dangerouslySetInnerHTML={{ __html: m.visitTeam }} />
+                      <TableCell>{m.result1}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </TabPanel>
+
+          <TabPanel value="form">
+            <Grid container spacing={2}>
+              {[
+                { title: 'Home Stats', list: homeStacList },
+                { title: 'Away Stats', list: custStacList },
+              ].map(({ title, list }) => (
+                <Grid item xs={12} md={6} key={title}>
+                  <Accordion>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                      <Typography>{title}</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <Table size="small">
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>Type</TableCell>
+                            <TableCell>Matches</TableCell>
+                            <TableCell>W</TableCell>
+                            <TableCell>D</TableCell>
+                            <TableCell>L</TableCell>
+                            <TableCell>GF</TableCell>
+                            <TableCell>GA</TableCell>
+                            <TableCell>Rate</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {list.map((row) => (
+                            <TableRow key={row.type}>
+                              <TableCell dangerouslySetInnerHTML={{ __html: row.type }} />
+                              <TableCell>{row.matchCount}</TableCell>
+                              <TableCell>{row.victCount}</TableCell>
+                              <TableCell>{row.tieCount}</TableCell>
+                              <TableCell>{row.failCount}</TableCell>
+                              <TableCell>{row.obtainCount}</TableCell>
+                              <TableCell>{row.loseCount}</TableCell>
+                              <TableCell>{row.victRate}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </AccordionDetails>
+                  </Accordion>
+                </Grid>
+              ))}
+            </Grid>
+          </TabPanel>
+        </TabContext>
       </PageContainer>
     </RootLayout>
   );
 };
 
-export default dynamic(() => Promise.resolve(MatchDetail), {
-  ssr: false,
-});
+export default dynamic(() => Promise.resolve(MatchDetail), { ssr: false });

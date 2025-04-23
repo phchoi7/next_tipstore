@@ -1,3 +1,5 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { s2t } from 'chinese-s2t';
 export default async function handler(
   req: any,
   res: { status: (arg0: number) => { (): any; new (): any; json: { (arg0: { error: string }): void; new (): any } } }
@@ -17,7 +19,11 @@ export default async function handler(
     });
 
     const data = await response.json();
-    res.status(200).json(data);
+    const translatedData = JSON.parse(JSON.stringify(data), (key, value) =>
+      typeof value === 'string' ? s2t(value) : value
+    );
+
+    res.status(200).json(translatedData);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch strong match list' });
   }
