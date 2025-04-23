@@ -85,6 +85,9 @@ const Dashboard: React.FC = () => {
       <Grid container spacing={3} justifyContent="center">
         {matchList.map((match) => {
           const confidence = parseFloat(match.recPercent);
+          const percent = parseFloat(match.recPercent) || 0;
+          const homeConfidence = match.matchResult === '勝' ? percent : 100 - percent;
+          const awayConfidence = match.matchResult === '負' ? percent : 100 - percent;
           return (
             <Grid item xs={12} sm={6} md={4} key={match.matchId}>
               <Card
@@ -145,32 +148,16 @@ const Dashboard: React.FC = () => {
                       sx={{ mb: 1 }}
                     />
 
-                    <Box sx={{ position: 'relative', display: 'inline-flex', mb: 1 }}>
-                      <CircularProgress
-                        variant="determinate"
-                        value={confidence}
-                        size={48}
-                        thickness={4}
-                        sx={{
-                          color: confidence > 50 ? theme.palette.success.main : theme.palette.error.main,
-                        }}
+                    <Box sx={{ px: 2, flexGrow: 1, width: '100%', mb: 2 }}>
+                      <Chip
+                        label={`Home: ${homeConfidence.toFixed(0)}%`}
+                        color={match.matchResult === '勝' ? 'success' : 'default'}
+                        sx={{ mr: 1 }}
                       />
-                      <Box
-                        sx={{
-                          top: 0,
-                          left: 0,
-                          bottom: 0,
-                          right: 0,
-                          position: 'absolute',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <Typography variant="caption" component="div" color="textSecondary">
-                          {`${confidence}%`}
-                        </Typography>
-                      </Box>
+                      <Chip
+                        label={`Away: ${awayConfidence.toFixed(0)}%`}
+                        color={match.matchResult === '負' ? 'success' : 'default'}
+                      />
                     </Box>
 
                     <Chip
@@ -178,6 +165,7 @@ const Dashboard: React.FC = () => {
                       label={match.typeName}
                       size="small"
                       color="primary"
+                      sx={{ mb: 2 }}
                     />
                   </Box>
                 </CardActionArea>
