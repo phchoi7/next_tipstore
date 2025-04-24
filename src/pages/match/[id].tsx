@@ -23,6 +23,7 @@ import {
   TableBody,
   Tab,
   useTheme,
+  Chip,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -32,6 +33,9 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import RootLayout from '@/app/layout';
 import PageContainer from '@/app/components/container/PageContainer';
 import { Match } from '@/constants/interface';
+import { returnTeamIcon } from '@/utils/utils';
+
+const COLORS = ['#4CAF50', '#FF9800', '#F44336'];
 
 interface StatItem {
   type: string;
@@ -74,8 +78,6 @@ interface HistoryDetail {
   homeStacList: StatItem[];
   custStacList: StatItem[];
 }
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
 
 const MatchDetail: React.FC = () => {
   const router = useRouter();
@@ -128,25 +130,59 @@ const MatchDetail: React.FC = () => {
   return (
     <RootLayout>
       <PageContainer title={`${matchInfo.homeTeam} vs ${matchInfo.visitTeam}`} description="All match data">
-        {/* Back & Title */}
+        {/* Fancy Gradient Header */}
         <Box
           sx={{
-            mb: 2,
+            p: 3,
+            borderRadius: 3,
+            background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+            color: '#fff',
+            mb: 4,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
+            textAlign: 'center',
           }}
         >
+          <Box>
+            <img src={returnTeamIcon(matchInfo.homeTeam)} width={48} alt="home logo" />
+            <Typography variant="h6">{matchInfo.homeTeam}</Typography>
+          </Box>
+          <Box>
+            <Typography variant="h4" fontWeight="bold">
+              VS
+            </Typography>
+            <Box
+              sx={{
+                mt: 1,
+                px: 2,
+                py: 1,
+                background: theme.palette.info.main,
+                color: '#fff',
+                borderRadius: 2,
+                fontWeight: 'bold',
+                boxShadow: `0 0 12px ${theme.palette.info.main}`,
+              }}
+            >
+              {matchInfo.matchTime}
+            </Box>
+          </Box>
+          <Box>
+            <img src={returnTeamIcon(matchInfo.visitTeam)} width={48} alt="away logo" />
+            <Typography variant="h6">{matchInfo.visitTeam}</Typography>
+          </Box>
+        </Box>
+
+        {/* Back & Tabs */}
+        <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Button startIcon={<ArrowBackIcon />} onClick={() => router.back()}>
             Back
           </Button>
-          <Typography variant="h6">
-            {matchInfo.homeTeam} vs {matchInfo.visitTeam}
-          </Typography>
+          <Chip label={matchInfo.typeName} variant="outlined" color="secondary" sx={{ fontWeight: 'bold' }} />
         </Box>
 
         <TabContext value={tab}>
-          <TabList onChange={(_, v) => setTab(v)} aria-label="detail tabs">
+          <TabList onChange={(_, v) => setTab(v)} aria-label="tabs">
             <Tab label="Overview" value="overview" />
             <Tab label="Tech Stats" value="tech" />
             <Tab label="Probabilities" value="prob" />
@@ -157,34 +193,27 @@ const MatchDetail: React.FC = () => {
           {/* Overview */}
           <TabPanel value="overview">
             <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      Overall Record
-                    </Typography>
-                    {Object.entries(peilvRow).map(([k, v]) => (
-                      <Typography key={k}>
-                        <strong>{k}:</strong> {v ?? 'N/A'}
+              {[peilvRow, zhanjiRow].map((obj, i) => (
+                <Grid item xs={12} md={6} key={i}>
+                  <Card
+                    sx={{
+                      transition: '0.3s',
+                      '&:hover': { transform: 'translateY(-5px)', boxShadow: theme.shadows[6] },
+                    }}
+                  >
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom>
+                        {i === 0 ? 'Overall Record' : 'Summary Record'}
                       </Typography>
-                    ))}
-                  </CardContent>
-                </Card>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      Summary Record
-                    </Typography>
-                    {Object.entries(zhanjiRow).map(([k, v]) => (
-                      <Typography key={k}>
-                        <strong>{k}:</strong> {v ?? 'N/A'}
-                      </Typography>
-                    ))}
-                  </CardContent>
-                </Card>
-              </Grid>
+                      {Object.entries(obj).map(([k, v]) => (
+                        <Typography key={k}>
+                          <strong>{k}:</strong> {v ?? 'N/A'}
+                        </Typography>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
               <Grid item xs={12}>
                 <Typography variant="h6" gutterBottom>
                   Match Types
@@ -198,14 +227,21 @@ const MatchDetail: React.FC = () => {
             </Grid>
           </TabPanel>
 
-          {/* Technical Stats */}
+          {/* Tech Stats */}
           <TabPanel value="tech">
             <Grid container spacing={2}>
               {tecStacLeftList.map((s) => (
                 <Grid item xs={12} sm={6} md={4} key={s.type}>
-                  <Card>
+                  <Card
+                    sx={{
+                      transition: '0.3s',
+                      '&:hover': { transform: 'scale(1.02)', boxShadow: theme.shadows[4] },
+                    }}
+                  >
                     <CardContent>
-                      <Typography variant="subtitle1">{s.type}</Typography>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        {s.type}
+                      </Typography>
                       <Typography>Home: {s.homeCount}</Typography>
                       <Typography>Away: {s.custCount}</Typography>
                     </CardContent>
@@ -229,6 +265,7 @@ const MatchDetail: React.FC = () => {
                       dataKey="value"
                       nameKey="name"
                       outerRadius="80%"
+                      label
                     >
                       {bilvList.map((_, idx) => (
                         <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
@@ -289,7 +326,7 @@ const MatchDetail: React.FC = () => {
                 <Grid item xs={12} md={6} key={title}>
                   <Accordion>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                      <Typography>{title}</Typography>
+                      <Typography fontWeight="bold">{title}</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                       <Table size="small">

@@ -12,7 +12,9 @@ import {
   CardContent,
   Avatar,
   Chip,
+  Tooltip,
   useTheme,
+  Divider,
 } from '@mui/material';
 import EventIcon from '@mui/icons-material/Event';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
@@ -64,7 +66,9 @@ const Dashboard: React.FC = () => {
                 <Typography variant="subtitle2" gutterBottom>
                   Total Matches
                 </Typography>
-                <Typography variant="h4">{matchList.length}</Typography>
+                <Typography variant="h4" fontWeight="bold">
+                  {matchList.length}
+                </Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -74,15 +78,17 @@ const Dashboard: React.FC = () => {
                 <Typography variant="subtitle2" gutterBottom>
                   Avg. Confidence
                 </Typography>
-                <Typography variant="h4">{averageAccuracy}%</Typography>
+                <Typography variant="h4" fontWeight="bold">
+                  {averageAccuracy}%
+                </Typography>
               </CardContent>
             </Card>
           </Grid>
         </Grid>
       </Box>
-      <Grid container spacing={3} justifyContent="center">
+
+      <Grid container spacing={3}>
         {matchList.map((match) => {
-          const confidence = parseFloat(match.recPercent);
           const percent = parseFloat(match.recPercent) || 0;
           const homeConfidence = match.matchResult === '勝' ? percent : 100 - percent;
           const awayConfidence = match.matchResult === '負' ? percent : 100 - percent;
@@ -92,7 +98,11 @@ const Dashboard: React.FC = () => {
             <Grid item xs={12} sm={6} md={4} key={match.matchId}>
               <Card
                 sx={{
-                  transition: 'transform 0.15s, box-shadow 0.15s',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
                   '&:hover': {
                     transform: 'scale(1.02)',
                     boxShadow: theme.shadows[6],
@@ -101,80 +111,64 @@ const Dashboard: React.FC = () => {
               >
                 <CardActionArea
                   onClick={() => router.push(`/match/${match.matchId}`)}
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: '100%',
-                    textAlign: 'center',
-                  }}
+                  sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
                 >
-                  {/* Teams */}
-                  <Box
-                    sx={{
-                      p: 2,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 1,
-                    }}
-                  >
-                    <Avatar src={returnTeamIcon(match.homeTeam)} sx={{ width: 40, height: 40 }} />
-                    <Typography variant="subtitle1" noWrap>
-                      {match.homeTeam}
-                    </Typography>
-                    <Typography variant="body2">vs</Typography>
-                    <Avatar src={returnTeamIcon(match.visitTeam)} sx={{ width: 40, height: 40 }} />
-                    <Typography variant="subtitle1" noWrap>
-                      {match.visitTeam}
-                    </Typography>
-                  </Box>
+                  <Box p={2} display="flex" flexDirection="column" alignItems="center">
+                    {/* Teams */}
+                    <Box display="flex" alignItems="center" gap={1} mb={1}>
+                      <Tooltip title={match.homeTeam} arrow>
+                        <Avatar src={returnTeamIcon(match.homeTeam)} sx={{ width: 40, height: 40 }} />
+                      </Tooltip>
+                      <Typography variant="subtitle1" fontWeight="bold" noWrap>
+                        {match.homeTeam}
+                      </Typography>
+                      <Typography variant="body2">vs</Typography>
+                      <Tooltip title={match.visitTeam} arrow>
+                        <Avatar src={returnTeamIcon(match.visitTeam)} sx={{ width: 40, height: 40 }} />
+                      </Tooltip>
+                      <Typography variant="subtitle1" fontWeight="bold" noWrap>
+                        {match.visitTeam}
+                      </Typography>
+                    </Box>
 
-                  {/* Time & Status */}
-                  <Box sx={{ px: 2, width: '100%', mb: 1, display: 'flex', justifyContent: 'center', gap: 1 }}>
-                    <Chip
-                      icon={<EventIcon fontSize="small" />}
-                      label={match.matchTime}
-                      size="small"
-                      variant="outlined"
-                    />
-                    <Chip
-                      label={isFinished ? 'Finished' : 'Upcoming'}
-                      size="small"
-                      color={isFinished ? 'primary' : 'default'}
-                    />
-                  </Box>
+                    {/* Time & Status */}
+                    <Box display="flex" gap={1} mb={1}>
+                      <Chip
+                        icon={<EventIcon fontSize="small" />}
+                        label={match.matchTime}
+                        size="small"
+                        variant="outlined"
+                      />
+                      <Chip
+                        label={isFinished ? 'Finished' : 'Upcoming'}
+                        size="small"
+                        color={isFinished ? 'primary' : 'default'}
+                      />
+                    </Box>
 
-                  {/* Final Score (if finished) */}
-                  {isFinished && match.result1 && (
-                    <Typography variant="h6" sx={{ mb: 1 }}>
-                      {match.result1}
-                    </Typography>
-                  )}
+                    {/* Final Score */}
+                    {isFinished && match.result1 && (
+                      <Typography variant="h6" fontWeight="bold" mb={1}>
+                        {match.result1}
+                      </Typography>
+                    )}
 
-                  {/* Confidence Bars */}
-                  <Box
-                    sx={{
-                      px: 2,
-                      flexGrow: 1,
-                      width: '100%',
-                      mb: 2,
-                      display: 'flex',
-                      justifyContent: 'center',
-                      gap: 1,
-                    }}
-                  >
-                    <Chip
-                      label={`Home: ${homeConfidence.toFixed(0)}%`}
-                      color={match.matchResult === '勝' ? 'success' : 'default'}
-                    />
-                    <Chip
-                      label={`Away: ${awayConfidence.toFixed(0)}%`}
-                      color={match.matchResult === '負' ? 'success' : 'default'}
-                    />
-                  </Box>
+                    {/* Divider for spacing */}
+                    <Divider sx={{ width: '100%', mb: 1 }} />
 
-                  {/* League */}
-                  <Box sx={{ pb: 2 }}>
+                    {/* Confidence */}
+                    <Box display="flex" gap={1} flexWrap="wrap" justifyContent="center" mb={1}>
+                      <Chip
+                        label={`Home: ${homeConfidence.toFixed(0)}%`}
+                        color={match.matchResult === '勝' ? 'success' : 'default'}
+                      />
+                      <Chip
+                        label={`Away: ${awayConfidence.toFixed(0)}%`}
+                        color={match.matchResult === '負' ? 'success' : 'default'}
+                      />
+                    </Box>
+
+                    {/* League */}
                     <Chip
                       icon={<SportsSoccerIcon fontSize="small" />}
                       label={match.typeName}
