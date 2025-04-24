@@ -24,11 +24,14 @@ import {
   Tab,
   useTheme,
   Chip,
+  Skeleton,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { motion } from 'framer-motion';
+import { Sparklines, SparklinesLine } from 'react-sparklines';
 
 import RootLayout from '@/app/layout';
 import PageContainer from '@/app/components/container/PageContainer';
@@ -103,7 +106,7 @@ const MatchDetail: React.FC = () => {
       .then(([d1, d2, d3, all]) => {
         setDetail(d1);
         setChartData(d2);
-        setHistory(d3);
+        setHistory(d3.data ?? d3);
         const found = (all.rows as Match[]).find((m) => m.matchId === id || m.rowNo === id);
         setMatchInfo(found || null);
       })
@@ -116,64 +119,75 @@ const MatchDetail: React.FC = () => {
       <RootLayout>
         <PageContainer title={id ? `Match ${id}` : 'Match Details'} description="">
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}>
-            <CircularProgress />
+            <Skeleton variant="rectangular" width="80%" height={300} />
           </Box>
         </PageContainer>
       </RootLayout>
     );
   }
 
-  const { peilvRow, duList, tecStacLeftList, zhanjiRow } = detail;
-  const { bilvList, analyInfo } = chartData;
-  const { hisList, homeStacList, custStacList } = history;
-
+  const { peilvRow, duList, tecStacLeftList, zhanjiRow } = detail!;
+  const { bilvList, analyInfo } = chartData!;
+  const { hisList, homeStacList, custStacList } = history!;
   return (
     <RootLayout>
       <PageContainer title={`${matchInfo.homeTeam} vs ${matchInfo.visitTeam}`} description="All match data">
-        {/* Fancy Gradient Header */}
-        <Box
-          sx={{
-            p: 3,
-            borderRadius: 3,
-            background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-            color: '#fff',
-            mb: 4,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            textAlign: 'center',
-          }}
-        >
-          <Box>
-            <img src={returnTeamIcon(matchInfo.homeTeam)} width={48} alt="home logo" />
-            <Typography variant="h6">{matchInfo.homeTeam}</Typography>
-          </Box>
-          <Box>
-            <Typography variant="h4" fontWeight="bold">
-              VS
-            </Typography>
-            <Box
-              sx={{
-                mt: 1,
-                px: 2,
-                py: 1,
-                background: theme.palette.info.main,
-                color: '#fff',
-                borderRadius: 2,
-                fontWeight: 'bold',
-                boxShadow: `0 0 12px ${theme.palette.info.main}`,
-              }}
-            >
-              {matchInfo.matchTime}
+        {/* Fancy Header with Animation */}
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+          <Box
+            sx={{
+              p: 3,
+              borderRadius: 3,
+              background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+              color: '#fff',
+              mb: 4,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              textAlign: 'center',
+              flexWrap: 'wrap',
+              gap: 2,
+            }}
+          >
+            <Box>
+              <img src={returnTeamIcon(matchInfo.homeTeam)} width={48} alt="home logo" />
+              <Typography variant="h6">{matchInfo.homeTeam}</Typography>
+              <Sparklines data={[2, 1, 3, 0, 2]} height={30} width={80}>
+                {(<SparklinesLine color="#fff" />) as any}
+              </Sparklines>
+            </Box>
+
+            <Box>
+              <Typography variant="h4" fontWeight="bold">
+                VS
+              </Typography>
+              <Box
+                sx={{
+                  mt: 1,
+                  px: 2,
+                  py: 1,
+                  background: theme.palette.info.main,
+                  color: '#fff',
+                  borderRadius: 2,
+                  fontWeight: 'bold',
+                  boxShadow: `0 0 12px ${theme.palette.info.main}`,
+                }}
+              >
+                {matchInfo.matchTime}
+              </Box>
+            </Box>
+
+            <Box>
+              <img src={returnTeamIcon(matchInfo.visitTeam)} width={48} alt="away logo" />
+              <Typography variant="h6">{matchInfo.visitTeam}</Typography>
+              <Sparklines data={[2, 1, 3, 0, 2]} height={30} width={80}>
+                {(<SparklinesLine color="#fff" />) as any}
+              </Sparklines>
             </Box>
           </Box>
-          <Box>
-            <img src={returnTeamIcon(matchInfo.visitTeam)} width={48} alt="away logo" />
-            <Typography variant="h6">{matchInfo.visitTeam}</Typography>
-          </Box>
-        </Box>
+        </motion.div>
 
-        {/* Back & Tabs */}
+        {/* Back Button + Match Type */}
         <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Button startIcon={<ArrowBackIcon />} onClick={() => router.back()}>
             Back
@@ -181,6 +195,7 @@ const MatchDetail: React.FC = () => {
           <Chip label={matchInfo.typeName} variant="outlined" color="secondary" sx={{ fontWeight: 'bold' }} />
         </Box>
 
+        {/* Tabs */}
         <TabContext value={tab}>
           <TabList onChange={(_, v) => setTab(v)} aria-label="tabs">
             <Tab label="Overview" value="overview" />
@@ -189,29 +204,25 @@ const MatchDetail: React.FC = () => {
             <Tab label="History" value="history" />
             <Tab label="Standings" value="form" />
           </TabList>
-
           {/* Overview */}
           <TabPanel value="overview">
             <Grid container spacing={2}>
               {[peilvRow, zhanjiRow].map((obj, i) => (
                 <Grid item xs={12} md={6} key={i}>
-                  <Card
-                    sx={{
-                      transition: '0.3s',
-                      '&:hover': { transform: 'translateY(-5px)', boxShadow: theme.shadows[6] },
-                    }}
-                  >
-                    <CardContent>
-                      <Typography variant="h6" gutterBottom>
-                        {i === 0 ? 'Overall Record' : 'Summary Record'}
-                      </Typography>
-                      {Object.entries(obj).map(([k, v]) => (
-                        <Typography key={k}>
-                          <strong>{k}:</strong> {v ?? 'N/A'}
+                  <motion.div whileHover={{ scale: 1.02 }} transition={{ duration: 0.3 }}>
+                    <Card>
+                      <CardContent>
+                        <Typography variant="h6" gutterBottom>
+                          {i === 0 ? 'Overall Record' : 'Summary Record'}
                         </Typography>
-                      ))}
-                    </CardContent>
-                  </Card>
+                        {Object.entries(obj).map(([k, v]) => (
+                          <Typography key={k}>
+                            <strong>{k}:</strong> {v ?? 'N/A'}
+                          </Typography>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  </motion.div>
                 </Grid>
               ))}
               <Grid item xs={12}>
@@ -232,20 +243,17 @@ const MatchDetail: React.FC = () => {
             <Grid container spacing={2}>
               {tecStacLeftList.map((s) => (
                 <Grid item xs={12} sm={6} md={4} key={s.type}>
-                  <Card
-                    sx={{
-                      transition: '0.3s',
-                      '&:hover': { transform: 'scale(1.02)', boxShadow: theme.shadows[4] },
-                    }}
-                  >
-                    <CardContent>
-                      <Typography variant="subtitle1" fontWeight="bold">
-                        {s.type}
-                      </Typography>
-                      <Typography>Home: {s.homeCount}</Typography>
-                      <Typography>Away: {s.custCount}</Typography>
-                    </CardContent>
-                  </Card>
+                  <motion.div whileHover={{ scale: 1.02 }} transition={{ duration: 0.3 }}>
+                    <Card>
+                      <CardContent>
+                        <Typography variant="subtitle1" fontWeight="bold">
+                          {s.type}
+                        </Typography>
+                        <Typography>Home: {s.homeCount}</Typography>
+                        <Typography>Away: {s.custCount}</Typography>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
                 </Grid>
               ))}
             </Grid>
@@ -258,10 +266,7 @@ const MatchDetail: React.FC = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={bilvList.map((b) => ({
-                        name: b.title,
-                        value: parseFloat(b.desc),
-                      }))}
+                      data={bilvList.map((b) => ({ name: b.title, value: parseFloat(b.desc) }))}
                       dataKey="value"
                       nameKey="name"
                       outerRadius="80%"
