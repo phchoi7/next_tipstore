@@ -18,6 +18,7 @@ import EventIcon from '@mui/icons-material/Event';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import PageContainer from '@/app/components/container/PageContainer';
 import { Match } from '@/constants/interface';
+import { returnTeamIcon } from '@/utils/utils';
 
 const Dashboard: React.FC = () => {
   const [matchList, setMatchList] = useState<Match[]>([]);
@@ -55,7 +56,6 @@ const Dashboard: React.FC = () => {
 
   return (
     <PageContainer title="Match Dashboard" description="Overview of upcoming matches">
-      {/* Summary Cards */}
       <Box mb={4}>
         <Grid container spacing={2} justifyContent="center">
           <Grid item xs={12} sm={4} md={3}>
@@ -80,14 +80,14 @@ const Dashboard: React.FC = () => {
           </Grid>
         </Grid>
       </Box>
-
-      {/* Match Cards Grid */}
       <Grid container spacing={3} justifyContent="center">
         {matchList.map((match) => {
           const confidence = parseFloat(match.recPercent);
           const percent = parseFloat(match.recPercent) || 0;
           const homeConfidence = match.matchResult === '勝' ? percent : 100 - percent;
           const awayConfidence = match.matchResult === '負' ? percent : 100 - percent;
+          const isFinished = match.matchLong !== '未';
+
           return (
             <Grid item xs={12} sm={6} md={4} key={match.matchId}>
               <Card
@@ -118,54 +118,68 @@ const Dashboard: React.FC = () => {
                       gap: 1,
                     }}
                   >
-                    <Avatar src={match.homeLogo} />
+                    <Avatar src={returnTeamIcon(match.homeTeam)} sx={{ width: 40, height: 40 }} />
                     <Typography variant="subtitle1" noWrap>
                       {match.homeTeam}
                     </Typography>
                     <Typography variant="body2">vs</Typography>
-                    <Avatar src={match.visitLogo} />
+                    <Avatar src={returnTeamIcon(match.visitTeam)} sx={{ width: 40, height: 40 }} />
                     <Typography variant="subtitle1" noWrap>
                       {match.visitTeam}
                     </Typography>
                   </Box>
 
-                  {/* Info */}
-                  <Box
-                    sx={{
-                      px: 2,
-                      flexGrow: 1,
-                      width: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                    }}
-                  >
+                  {/* Time & Status */}
+                  <Box sx={{ px: 2, width: '100%', mb: 1, display: 'flex', justifyContent: 'center', gap: 1 }}>
                     <Chip
                       icon={<EventIcon fontSize="small" />}
                       label={match.matchTime}
                       size="small"
                       variant="outlined"
-                      sx={{ mb: 1 }}
                     />
+                    <Chip
+                      label={isFinished ? 'Finished' : 'Upcoming'}
+                      size="small"
+                      color={isFinished ? 'primary' : 'default'}
+                    />
+                  </Box>
 
-                    <Box sx={{ px: 2, flexGrow: 1, width: '100%', mb: 2 }}>
-                      <Chip
-                        label={`Home: ${homeConfidence.toFixed(0)}%`}
-                        color={match.matchResult === '勝' ? 'success' : 'default'}
-                        sx={{ mr: 1 }}
-                      />
-                      <Chip
-                        label={`Away: ${awayConfidence.toFixed(0)}%`}
-                        color={match.matchResult === '負' ? 'success' : 'default'}
-                      />
-                    </Box>
+                  {/* Final Score (if finished) */}
+                  {isFinished && match.result1 && (
+                    <Typography variant="h6" sx={{ mb: 1 }}>
+                      {match.result1}
+                    </Typography>
+                  )}
 
+                  {/* Confidence Bars */}
+                  <Box
+                    sx={{
+                      px: 2,
+                      flexGrow: 1,
+                      width: '100%',
+                      mb: 2,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      gap: 1,
+                    }}
+                  >
+                    <Chip
+                      label={`Home: ${homeConfidence.toFixed(0)}%`}
+                      color={match.matchResult === '勝' ? 'success' : 'default'}
+                    />
+                    <Chip
+                      label={`Away: ${awayConfidence.toFixed(0)}%`}
+                      color={match.matchResult === '負' ? 'success' : 'default'}
+                    />
+                  </Box>
+
+                  {/* League */}
+                  <Box sx={{ pb: 2 }}>
                     <Chip
                       icon={<SportsSoccerIcon fontSize="small" />}
                       label={match.typeName}
                       size="small"
                       color="primary"
-                      sx={{ mb: 2 }}
                     />
                   </Box>
                 </CardActionArea>
